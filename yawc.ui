@@ -6,81 +6,250 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>569</width>
+    <width>610</width>
     <height>382</height>
    </rect>
   </property>
-  <layout class="QFormLayout" name="formLayout">
-   <property name="fieldGrowthPolicy">
-    <enum>QFormLayout::ExpandingFieldsGrow</enum>
-   </property>
-   <item row="0" column="1">
-    <widget class="QCheckBox" name="alwaysUseDialog">
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="4" column="1">
+    <widget class="QLabel" name="label_4">
      <property name="text">
-      <string>Always list the applications in a menu</string>
+      <string>Show Minimize Button:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
+   <item row="11" column="1">
+    <widget class="QLabel" name="label_10">
+     <property name="text">
+      <string>Don't show window title when maximized:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2">
     <widget class="QCheckBox" name="showMaximize">
      <property name="text">
-      <string>Show Maximize Button</string>
+      <string/>
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
+   <item row="4" column="2">
     <widget class="QCheckBox" name="showMinimize">
      <property name="text">
-      <string>Show Minimize Button</string>
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="3">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>&lt;b&gt;Appearance&lt;/b&gt;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="QCheckBox" name="alwaysUseDialog">
+     <property name="text">
+      <string/>
      </property>
     </widget>
    </item>
    <item row="3" column="1">
-    <widget class="QCheckBox" name="showTitle">
+    <widget class="QLabel" name="label_3">
      <property name="text">
-      <string>Show Window Title</string>
+      <string>Show Maximize Button:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
     </widget>
    </item>
-   <item row="4" column="1">
+   <item row="2" column="0">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="12" column="1">
+    <widget class="QLabel" name="label_11">
+     <property name="text">
+      <string>Enable window drag:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="2">
     <widget class="QCheckBox" name="showClose">
      <property name="text">
-      <string>Show Close Button</string>
+      <string/>
      </property>
     </widget>
    </item>
-   <item row="5" column="1">
+   <item row="13" column="1">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="11" column="2">
+    <widget class="QCheckBox" name="borderlessMaximizedWindow">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <widget class="QLabel" name="label_8">
+     <property name="text">
+      <string>Show Icon:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="2">
     <widget class="QCheckBox" name="showIcon">
      <property name="text">
-      <string>Show Icon</string>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="1">
-    <widget class="QCheckBox" name="windowDrag">
-     <property name="text">
-      <string>Enable window drag</string>
+      <string/>
      </property>
     </widget>
    </item>
    <item row="8" column="1">
-    <widget class="QCheckBox" name="borderlessMaximizedWindow">
+    <widget class="QLabel" name="label_9">
      <property name="text">
-      <string>Don't show window title when maximized</string>
+      <string>Window Title width:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
     </widget>
    </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="label">
+   <item row="5" column="2">
+    <widget class="QCheckBox" name="showTitle">
      <property name="text">
-      <string>Appearance:</string>
+      <string/>
      </property>
     </widget>
    </item>
-   <item row="8" column="0">
+   <item row="5" column="1">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Show Window Title:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <widget class="QLabel" name="label_7">
+     <property name="text">
+      <string>Show Close Button:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0" colspan="3">
     <widget class="QLabel" name="label_6">
      <property name="text">
-      <string>Window management:</string>
+      <string>&lt;b&gt;Window management&lt;/b&gt;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Always list the applications in a menu:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="2">
+    <widget class="QSlider" name="windowSizeSlider">
+     <property name="maximum">
+      <number>20</number>
+     </property>
+     <property name="singleStep">
+      <number>5</number>
+     </property>
+     <property name="pageStep">
+      <number>10</number>
+     </property>
+     <property name="value">
+      <number>15</number>
+     </property>
+     <property name="tracking">
+      <bool>true</bool>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="invertedAppearance">
+      <bool>false</bool>
+     </property>
+     <property name="invertedControls">
+      <bool>false</bool>
+     </property>
+     <property name="tickPosition">
+      <enum>QSlider::TicksBelow</enum>
+     </property>
+     <property name="tickInterval">
+      <number>10</number>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="2">
+    <widget class="QCheckBox" name="windowDrag">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="3">
+    <widget class="QSpinBox" name="windowSizeSpinBox">
+     <property name="suffix">
+      <string> %</string>
+     </property>
+     <property name="prefix">
+      <string/>
+     </property>
+     <property name="maximum">
+      <number>20</number>
+     </property>
+     <property name="singleStep">
+      <number>10</number>
+     </property>
+     <property name="value">
+      <number>15</number>
      </property>
     </widget>
    </item>
