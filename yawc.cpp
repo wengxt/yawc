@@ -66,6 +66,10 @@ YetAnotherWindowControl::YetAnotherWindowControl(QObject *parent, const QVariant
       m_borderlessMaximize(false),
       m_titleWidth(15)
 {
+    m_appletLayout = new QGraphicsLinearLayout(Qt::Horizontal, this);
+    setLayout(m_appletLayout);
+    m_appletLayout->setContentsMargins(0, 0, 0, 0);
+    m_appletLayout->setSpacing(0);
     m_currentTask = new TitleWidget(this);
     m_currentTask->setMaximumWidth(KIconLoader::SizeSmallMedium);
 
@@ -100,6 +104,8 @@ YetAnotherWindowControl::YetAnotherWindowControl(QObject *parent, const QVariant
 
 YetAnotherWindowControl::~YetAnotherWindowControl()
 {
+    KWindowSystem::self()->disconnect(0, this, 0);
+    Plasma::ToolTipManager::self()->unregisterWidget(this);
 }
 
 void YetAnotherWindowControl::init()
@@ -110,9 +116,6 @@ void YetAnotherWindowControl::init()
             this, SLOT(windowChanged(WId)));
     connect(KWindowSystem::self(), SIGNAL(windowRemoved(WId)),
             this, SLOT(windowRemoved(WId)));
-    QGraphicsLinearLayout *lay = new QGraphicsLinearLayout(Qt::Horizontal, this);
-    lay->setContentsMargins(0, 0, 0, 0);
-    lay->setSpacing(0);
     activeWindowChanged(KWindowSystem::activeWindow());
     configChanged();
 }
@@ -131,50 +134,48 @@ void YetAnotherWindowControl::configChanged()
     KConfigGroup cg(&config, "Windows");
     m_borderlessMaximize = cg.readEntry("BorderlessMaximizedWindows", false);
 
-    QGraphicsLinearLayout *lay = static_cast<QGraphicsLinearLayout *>(layout());
-
-    while(lay->count() > 0)
-        lay->removeAt(0);
+    while(m_appletLayout->count() > 0)
+        m_appletLayout->removeAt(0);
 
     if (m_showIcon) {
-        lay->addItem(m_currentTask);
+        m_appletLayout->addItem(m_currentTask);
         m_currentTask->show();
     }
     else {
-        lay->removeItem(m_currentTask);
+        m_appletLayout->removeItem(m_currentTask);
         m_currentTask->hide();
     }
 
     if (m_showTitle) {
-        lay->addItem(m_currentTaskTitle);
+        m_appletLayout->addItem(m_currentTaskTitle);
         m_currentTaskTitle->show();
     }
     else {
-        lay->removeItem(m_currentTaskTitle);
+        m_appletLayout->removeItem(m_currentTaskTitle);
         m_currentTaskTitle->hide();
     }
 
     if (m_showMinimize) {
-        lay->addItem(m_minimizeTask);
+        m_appletLayout->addItem(m_minimizeTask);
         m_minimizeTask->show();
     } else {
-        lay->removeItem(m_minimizeTask);
+        m_appletLayout->removeItem(m_minimizeTask);
         m_minimizeTask->hide();
     }
 
     if (m_showMaximize) {
-        lay->addItem(m_maximizeTask);
+        m_appletLayout->addItem(m_maximizeTask);
         m_maximizeTask->show();
     } else {
-        lay->removeItem(m_maximizeTask);
+        m_appletLayout->removeItem(m_maximizeTask);
         m_maximizeTask->hide();
     }
 
     if (m_showClose) {
-        lay->addItem(m_closeTask);
+        m_appletLayout->addItem(m_closeTask);
         m_closeTask->show();
     } else {
-        lay->removeItem(m_closeTask);
+        m_appletLayout->removeItem(m_closeTask);
         m_closeTask->hide();
     }
 
@@ -262,7 +263,7 @@ void YetAnotherWindowControl::syncActiveWindow()
          }
      }
 
-    Plasma::ToolTipContent toolTipData = Plasma::ToolTipContent();
+    Plasma::ToolTipContent toolTipData;
     toolTipData.setAutohide(true);
     toolTipData.setSubText(i18n("Click here to have an overview of all the running applications"));
 
@@ -287,7 +288,7 @@ void YetAnotherWindowControl::syncActiveWindow()
 
     } else if (m_pendingActiveWindow <= 0) {
         toolTipData.setMainText(m_toolTipText);
-        toolTipData.setImage(KWindowSystem::icon(m_activeWindow, KIconLoader::SizeHuge, KIconLoader::SizeHuge));
+        //toolTipData.setImage(KWindowSystem::icon(m_activeWindow, KIconLoader::SizeHuge, KIconLoader::SizeHuge));
     } else {
         m_activeWindow = m_pendingActiveWindow;
         m_lastActiveWindow = m_pendingActiveWindow;
@@ -445,7 +446,7 @@ void YetAnotherWindowControl::listWindows()
 
         foreach(WId window, KWindowSystem::stackingOrder()) {
             KWindowInfo info = KWindowSystem::windowInfo(window, NET::WMName|NET::WMState|NET::WMWindowType);
-            NET::WindowType type = info.windowType(NET::AllTypesMask);
+            NET::WindowType type = info.windowType((int) NET::AllTypesMask);
             if (!(info.state() & NET::SkipTaskbar) &&
                 ((type == NET::Normal) || (type == NET::Unknown))) {
                 Plasma::IconWidget *icon;
@@ -504,14 +505,15 @@ void YetAnotherWindowControl::createConfigurationInterface(KConfigDialog *parent
     m_generalUi.showClose->setChecked(m_showClose);
     m_generalUi.borderlessMaximizedWindow->setChecked(m_borderlessMaximize);
     m_generalUi.windowDrag->setChecked(m_enableDrag);
-    connect(m_generalUi.alwaysUseDialog, SIGNAL(toggled(bool)), parent, SLOT(settingsChangedSlot()));
-    connect(m_generalUi.showMaximize, SIGNAL(toggled(bool)), parent, SLOT(settingsChangedSlot()));
-    connect(m_generalUi.showMinimize, SIGNAL(toggled(bool)), parent, SLOT(settingsChangedSlot()));
-    connect(m_generalUi.showTitle, SIGNAL(toggled(bool)), parent, SLOT(settingsChangedSlot()));
-    connect(m_generalUi.showIcon, SIGNAL(toggled(bool)), parent, SLOT(settingsChangedSlot()));
-    connect(m_generalUi.showClose, SIGNAL(toggled(bool)), parent, SLOT(settingsChangedSlot()));
-    connect(m_generalUi.borderlessMaximizedWindow, SIGNAL(toggled(bool)), parent, SLOT(settingsChangedSlot()));
-    connect(m_generalUi.windowDrag, SIGNAL(toggled(bool)), parent, SLOT(settingsChangedSlot()));
+    connect(m_generalUi.windowSizeSpinBox, SIGNAL(valueChanged(int)), parent, SLOT(settingsModified()));
+    connect(m_generalUi.alwaysUseDialog, SIGNAL(toggled(bool)), parent, SLOT(settingsModified()));
+    connect(m_generalUi.showMaximize, SIGNAL(toggled(bool)), parent, SLOT(settingsModified()));
+    connect(m_generalUi.showMinimize, SIGNAL(toggled(bool)), parent, SLOT(settingsModified()));
+    connect(m_generalUi.showTitle, SIGNAL(toggled(bool)), parent, SLOT(settingsModified()));
+    connect(m_generalUi.showIcon, SIGNAL(toggled(bool)), parent, SLOT(settingsModified()));
+    connect(m_generalUi.showClose, SIGNAL(toggled(bool)), parent, SLOT(settingsModified()));
+    connect(m_generalUi.borderlessMaximizedWindow, SIGNAL(toggled(bool)), parent, SLOT(settingsModified()));
+    connect(m_generalUi.windowDrag, SIGNAL(toggled(bool)), parent, SLOT(settingsModified()));
 }
 
 void YetAnotherWindowControl::configAccepted()
@@ -523,7 +525,7 @@ void YetAnotherWindowControl::configAccepted()
     m_showIcon = m_generalUi.showIcon->checkState() == Qt::Checked;
     m_showClose = m_generalUi.showClose->checkState() == Qt::Checked;
     m_enableDrag = m_generalUi.windowDrag->checkState() == Qt::Checked;
-    m_titleWidth = m_generalUi.windowSizeSlider->value();
+    m_titleWidth = m_generalUi.windowSizeSpinBox->value();
     bool borderlessMaximize =  m_generalUi.borderlessMaximizedWindow->checkState() == Qt::Checked;
     config().writeEntry("AlwaysUseDialog", m_alwaysUseDialog);
     config().writeEntry("ShowMaximize", m_showMaximize);

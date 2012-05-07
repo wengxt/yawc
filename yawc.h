@@ -75,6 +75,7 @@ private:
     Plasma::IconWidget *m_maximizeTask;
     Plasma::IconWidget* m_minimizeTask;
     TitleWidget* m_currentTaskTitle;
+    QGraphicsLinearLayout *m_appletLayout;
     bool m_syncDelay;
     WId m_activeWindow;
     WId m_lastActiveWindow;
