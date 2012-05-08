@@ -23,6 +23,7 @@
 #define CURRENTAPPCONTROL_HEADER
 
 #include <Plasma/Applet>
+#include <KActivities/Consumer>
 
 #include "ui_yawc.h"
 
@@ -51,7 +52,6 @@ public:
     void createConfigurationInterface(KConfigDialog *parent);
 
 protected:
-    bool eventFilter(QObject *watched, QEvent *event);
     int windowsCount() const;
 
 protected Q_SLOTS:
@@ -63,43 +63,39 @@ protected Q_SLOTS:
     void closeWindow();
     void toggleMaximizedWindow();
     void toggleMinimizedWindow();
+    void toggleTop();
+    void toggleAllDesktop();
     void listWindows();
-    void windowItemClicked();
-    void closePopup();
     void configAccepted();
 
 private:
     void updateSize();
+    QStringList m_allItem;
+    QStringList m_activeItem;
+    QMap<QString, QString> m_itemName;
+    QMap<QString, Plasma::IconWidget*> m_itemMap;
+
     TitleWidget *m_currentTask;
-    Plasma::IconWidget *m_closeTask;
-    Plasma::IconWidget *m_maximizeTask;
-    Plasma::IconWidget* m_minimizeTask;
     TitleWidget* m_currentTaskTitle;
+    Plasma::IconWidget* m_topTask;
+    Plasma::IconWidget* m_alldesktopTask;
+    Plasma::IconWidget* m_minimizeTask;
+    Plasma::IconWidget *m_maximizeTask;
+    Plasma::IconWidget *m_closeTask;
+
     QGraphicsLinearLayout *m_appletLayout;
+
     bool m_syncDelay;
     WId m_activeWindow;
     WId m_lastActiveWindow;
     WId m_pendingActiveWindow;
-
-    Plasma::Dialog *m_listDialog;
-    QGraphicsWidget *m_listWidget;
-    QGraphicsLinearLayout *m_layout;
-    Plasma::ItemBackground *m_itemBackground;
-    bool m_showMaximize;
-    bool m_showMinimize;
-    bool m_alwaysUseDialog;
-    bool m_showTitle;
-    bool m_showIcon;
-    bool m_showClose;
-    QList<Plasma::IconWidget *> m_oldIcons;
-    QHash<Plasma::IconWidget *, WId> m_windowIcons;
 
     Ui::GeneralConfig m_generalUi;
     QString m_toolTipText;
     bool m_enableDrag;
     bool m_borderlessMaximize;
     int m_titleWidth;
-};
 
-K_EXPORT_PLASMA_APPLET(yawc, YetAnotherWindowControl)
+    KActivities::Consumer m_consumer;
+};
 #endif

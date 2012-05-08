@@ -1,0 +1,230 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Translators:
+# Ukyoi <ukyoi@msn.com>, 2011.
+#   <wengxt@gmail.com>, 2011.
+# Weng Xuetian <wengxt@gmail.com>, 2010, 2011, 2012.
+msgid ""
+msgstr ""
+"Project-Id-Version: fcitx\n"
+"Report-Msgid-Bugs-To: wengxt@gmail.com\n"
+"POT-Creation-Date: 2012-05-09 01:36+0800\n"
+"PO-Revision-Date: 2012-05-09 01:37+0800\n"
+"Last-Translator: Weng Xuetian <wengxt@gmail.com>\n"
+"Language-Team: Chinese Simplified <fcitx-dev@googlegroups.com>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"X-Generator: Lokalize 1.4\n"
+
+#. i18n: file: ../src/yawc.ui:88
+#. i18n: ectx: property (suffix), widget (QSpinBox, windowSizeSpinBox)
+#: rc.cpp:19
+#, no-c-format
+msgid " %"
+msgstr " %"
+
+#: ../src/yawc.cpp:266
+msgid "%1 running app"
+msgid_plural "%1 running apps"
+msgstr[0] "%1 个运行中的程序"
+
+#. i18n: file: ../src/yawc.ui:34
+#. i18n: ectx: property (text), widget (QLabel, label)
+#: rc.cpp:9
+msgid "<b>Appearance</b>"
+msgstr "<b>外观</b>"
+
+#. i18n: file: ../src/yawc.ui:17
+#. i18n: ectx: property (text), widget (QLabel, label_6)
+#: rc.cpp:3
+msgid "<b>Window management</b>"
+msgstr "<b>窗口管理</b>"
+
+#: ../src/yawc.cpp:73
+msgid "Always on Top"
+msgstr "总在最上"
+
+#. i18n: file: ../src/yawc.ui:114
+#. i18n: ectx: property (text), widget (QLabel, label_3)
+#: rc.cpp:22
+msgid "Available Item:"
+msgstr "可用项:"
+
+#: ../src/yawc.cpp:259
+msgid "Click here to have an overview of all the running applications"
+msgstr "单击这里可用查看所有运行中程序的概览"
+
+#: ../src/yawc.cpp:77
+msgid "Close window"
+msgstr "关闭窗口"
+
+#. i18n: file: ../src/yawc.ui:24
+#. i18n: ectx: property (text), widget (QLabel, label_10)
+#: rc.cpp:6
+msgid "Don't show window title when maximized:"
+msgstr "不要在最大化时显示窗口标题栏:"
+
+#. i18n: file: ../src/yawc.ui:41
+#. i18n: ectx: property (text), widget (QLabel, label_11)
+#: rc.cpp:12
+msgid "Enable window drag:"
+msgstr "启用窗口拖放:"
+
+#: ../src/yawc.cpp:440
+msgctxt "General configuration page"
+msgid "General"
+msgstr "常规"
+
+#: ../src/yawc.cpp:71
+msgid "Icon"
+msgstr "图标"
+
+#: ../src/yawc.cpp:76
+msgid "Maximize window"
+msgstr "最大化窗口"
+
+#: ../src/yawc.cpp:75
+msgid "Minimize window"
+msgstr "最小化窗口"
+
+#: ../src/yawc.cpp:268
+msgid "No running apps"
+msgstr "无运行中的程序"
+
+#: ../src/yawc.cpp:74
+msgid "Show on all desktop"
+msgstr "在所有桌面显示"
+
+#: ../src/yawc.cpp:72
+msgid "Window Title"
+msgstr "窗口标题"
+
+#. i18n: file: ../src/yawc.ui:71
+#. i18n: ectx: property (text), widget (QLabel, label_9)
+#: rc.cpp:15
+msgid "Window Title width:"
+msgstr "窗口标题宽度:"
+
+#: rc.cpp:24
+msgctxt "EMAIL OF TRANSLATORS"
+msgid "Your emails"
+msgstr "wengxt@gmail.com"
+
+#: rc.cpp:23
+msgctxt "NAME OF TRANSLATORS"
+msgid "Your names"
+msgstr "Xuetian Weng"
+
+#~ msgid "&Configure Skin"
+#~ msgstr "配置皮肤(&C)"
+
+#~ msgid "&Delete Skin"
+#~ msgstr "删除皮肤(&D)"
+
+#~ msgid ""
+#~ "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+#~ "REC-html40/strict.dtd\">\n"
+#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
+#~ "css\">\n"
+#~ "p, li { white-space: pre-wrap; }\n"
+#~ "</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; "
+#~ "font-weight:400; font-style:normal;\">\n"
+#~ "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+#~ "right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
+#~ "weight:600;\">Notice:</span></p>\n"
+#~ "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">You need to use Classic "
+#~ "UI to use skin function.</p></body></html>"
+#~ msgstr ""
+#~ "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+#~ "REC-html40/strict.dtd\">\n"
+#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
+#~ "css\">\n"
+#~ "p, li { white-space: pre-wrap; }\n"
+#~ "</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; "
+#~ "font-weight:400; font-style:normal;\">\n"
+#~ "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+#~ "right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
+#~ "weight:600;\">注意：</span></p>\n"
+#~ "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">你需要经典界面来使用皮肤"
+#~ "功能。</p></body></html>"
+
+#~ msgid "Addon Config"
+#~ msgstr "附加组件配置"
+
+#~ msgid "Attention"
+#~ msgstr "注意"
+
+#~ msgid "Configure Fcitx"
+#~ msgstr "配置 Fcitx"
+
+#~ msgid "Configure Fcitx addon"
+#~ msgstr "配置 Fcitx 附加组件"
+
+#~ msgid "Copyright 2011 Xuetian Weng"
+#~ msgstr "Copyright 2011 Xuetian Weng"
+
+#~ msgid "Current Input Method:"
+#~ msgstr "当前的输入法："
+
+#~ msgid "Fcitx Configuration Module"
+#~ msgstr "Fcitx 配置模块"
+
+#~ msgid "First candidate"
+#~ msgstr "第一候选词"
+
+#~ msgid "Form"
+#~ msgstr "Form"
+
+#~ msgid "Get New &Skin..."
+#~ msgstr "获得新皮肤(&S)..."
+
+#~ msgid "Global Config"
+#~ msgstr "全局配置"
+
+#~ msgid "Global Config for Fcitx"
+#~ msgstr "Fcitx 的全局配置"
+
+#~ msgid "Input Method"
+#~ msgstr "输入法"
+
+#~ msgid "Manage Fcitx Skin"
+#~ msgstr "管理Fcitx 的皮肤"
+
+#~ msgid "Manage Skin"
+#~ msgstr "管理皮肤"
+
+#~ msgid "Multilingual"
+#~ msgstr "多语言"
+
+#~ msgid "Not all configuration can be reloaded immediately."
+#~ msgstr "并非所有设置都可以被立即重新加载。"
+
+#~ msgid "Only &Show Current Language"
+#~ msgstr "仅显示当前语言(&S)"
+
+#~ msgid "Other"
+#~ msgstr "其他"
+
+#~ msgid "Other candidate"
+#~ msgstr "其他候选词"
+
+#~ msgid "Search Addons"
+#~ msgstr "搜索附加组件"
+
+#~ msgid "Search Input Method"
+#~ msgstr "搜索输入法"
+
+#~ msgid "Skin %1 Cannot be loaded"
+#~ msgstr "皮肤 %1 无法加载"
+
+#~ msgid "Unknown"
+#~ msgstr "未知"
+
+#~ msgid "Xuetian Weng"
+#~ msgstr "Xuetian Weng"

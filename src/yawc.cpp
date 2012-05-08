@@ -26,6 +26,7 @@
 #include <QX11Info>
 #include <QTimer>
 #include <QFontMetrics>
+#include <QListWidget>
 #include <QVarLengthArray>
 #include <QDBusInterface>
 
@@ -50,43 +51,60 @@
 
 
 YetAnotherWindowControl::YetAnotherWindowControl(QObject *parent, const QVariantList &args)
-    : Plasma::Applet(parent, args),
-      m_syncDelay(false),
-      m_activeWindow(0),
-      m_lastActiveWindow(0),
-      m_pendingActiveWindow(0),
-      m_listDialog(0),
-      m_listWidget(0),
-      m_showMaximize(true),
-      m_showMinimize(true),
-      m_alwaysUseDialog(false),
-      m_showTitle(true),
-      m_showIcon(true),
-      m_showClose(true),
-      m_borderlessMaximize(false),
-      m_titleWidth(15)
+    : Plasma::Applet(parent, args)
+    ,m_currentTask(new TitleWidget(this))
+    ,m_currentTaskTitle(new TitleWidget(this))
+    ,m_topTask(new Plasma::IconWidget(this))
+    ,m_alldesktopTask(new Plasma::IconWidget(this))
+    ,m_minimizeTask(new Plasma::IconWidget(this))
+    ,m_maximizeTask(new Plasma::IconWidget(this))
+    ,m_closeTask(new Plasma::IconWidget(this))
+    ,m_appletLayout(new QGraphicsLinearLayout(Qt::Horizontal))
+    ,m_syncDelay(false)
+    ,m_activeWindow(0)
+    ,m_lastActiveWindow(0)
+    ,m_pendingActiveWindow(0)
+    ,m_borderlessMaximize(false)
+    ,m_titleWidth(15)
 {
-    m_appletLayout = new QGraphicsLinearLayout(Qt::Horizontal, this);
+    m_allItem << "Icon" << "Title" << "Top" << "AllDesktop" << "Min" << "Max" << "Close";
+    m_itemName["Icon"] = i18n("Icon");
+    m_itemName["Title"] = i18n("Window Title");
+    m_itemName["Top"] = i18n("Always on Top");
+    m_itemName["AllDesktop"] = i18n("Show on all desktop");
+    m_itemName["Min"] = i18n("Minimize window");
+    m_itemName["Max"] = i18n("Maximize window");
+    m_itemName["Close"] = i18n("Close window");
+    m_itemMap["Icon"] = m_currentTask;
+    m_itemMap["Title"] =m_currentTaskTitle;
+    m_itemMap["Top"] = m_topTask;
+    m_itemMap["AllDesktop"] = m_alldesktopTask;
+    m_itemMap["Min"] = m_minimizeTask;
+    m_itemMap["Max"] = m_maximizeTask;
+    m_itemMap["Close"] = m_closeTask;
+
     setLayout(m_appletLayout);
     m_appletLayout->setContentsMargins(0, 0, 0, 0);
     m_appletLayout->setSpacing(0);
-    m_currentTask = new TitleWidget(this);
+
     m_currentTask->setMaximumWidth(KIconLoader::SizeSmallMedium);
 
-    m_currentTaskTitle = new TitleWidget(this);
     m_currentTaskTitle->setTextBackgroundColor(QColor());
     m_currentTaskTitle->setTextBackgroundColor(QColor(Qt::transparent));
 
-    m_closeTask = new Plasma::IconWidget(this);
     m_closeTask->setSvg("widgets/configuration-icons", "close");
     m_closeTask->setMaximumWidth(KIconLoader::SizeSmallMedium);
 
-    m_maximizeTask = new Plasma::IconWidget(this);
+    m_topTask->setSvg("widgets/configuration-icons", "size-vertical");
+    m_topTask->setMaximumWidth(KIconLoader::SizeSmallMedium);
+
+    m_alldesktopTask->setSvg("widgets/configuration-icons", "add");
+    m_alldesktopTask->setMaximumWidth(KIconLoader::SizeSmallMedium);
+
     m_maximizeTask->setSvg("widgets/configuration-icons", "maximize");
     m_maximizeTask->setMaximumWidth(KIconLoader::SizeSmallMedium);
     m_maximizeTask->setZValue(999);
 
-    m_minimizeTask = new Plasma::IconWidget(this);
     m_minimizeTask->setSvg("widgets/configuration-icons", "collapse");
     m_minimizeTask->setMaximumWidth(KIconLoader::SizeSmallMedium);
     m_minimizeTask->setZValue(999);
@@ -97,8 +115,14 @@ YetAnotherWindowControl::YetAnotherWindowControl(QObject *parent, const QVariant
     connect(m_maximizeTask, SIGNAL(pressed(bool)), this, SLOT(setSyncDelay(bool)));
     connect(m_minimizeTask, SIGNAL(clicked()), this, SLOT(toggleMinimizedWindow()));
     connect(m_minimizeTask, SIGNAL(pressed(bool)), this, SLOT(setSyncDelay(bool)));
+    connect(m_alldesktopTask, SIGNAL(clicked()), this, SLOT(toggleAllDesktop()));
+    connect(m_alldesktopTask, SIGNAL(pressed(bool)), this, SLOT(setSyncDelay(bool)));
+    connect(m_topTask, SIGNAL(clicked()), this, SLOT(toggleTop()));
+    connect(m_topTask, SIGNAL(pressed(bool)), this, SLOT(setSyncDelay(bool)));
     connect(m_currentTask, SIGNAL(clicked()), this, SLOT(listWindows()));
     connect(m_currentTaskTitle, SIGNAL(clicked()), this, SLOT(listWindows()));
+
+    connect(&m_consumer, SIGNAL(currentActivityChanged(QString)), this, SLOT(syncActiveWindow()));
 }
 
 
@@ -122,12 +146,9 @@ void YetAnotherWindowControl::init()
 
 void YetAnotherWindowControl::configChanged()
 {
-    m_showIcon = config().readEntry("ShowIcon", true);
-    m_showMinimize = config().readEntry("ShowMinimize", true);
-    m_showMaximize = config().readEntry("ShowMaximize", true);
-    m_alwaysUseDialog = config().readEntry("AlwaysUseDialog", false);
-    m_showTitle = config().readEntry("ShowWindowTitle", true);
-    m_showClose = config().readEntry("ShowClose", true);
+    QStringList defaultList;
+    defaultList << "Icon" << "Title" << "Min" << "Max" << "Close";
+    m_activeItem = config().readEntry("ActiveItem", defaultList);
     m_enableDrag = config().readEntry("WindowDrag", true);
     m_titleWidth = config().readEntry("TitleWidth", 15);
     KConfig config("kwinrc");
@@ -137,46 +158,16 @@ void YetAnotherWindowControl::configChanged()
     while(m_appletLayout->count() > 0)
         m_appletLayout->removeAt(0);
 
-    if (m_showIcon) {
-        m_appletLayout->addItem(m_currentTask);
-        m_currentTask->show();
-    }
-    else {
-        m_appletLayout->removeItem(m_currentTask);
-        m_currentTask->hide();
+    foreach(Plasma::IconWidget* item, m_itemMap.values()) {
+        item->hide();
     }
 
-    if (m_showTitle) {
-        m_appletLayout->addItem(m_currentTaskTitle);
-        m_currentTaskTitle->show();
-    }
-    else {
-        m_appletLayout->removeItem(m_currentTaskTitle);
-        m_currentTaskTitle->hide();
-    }
-
-    if (m_showMinimize) {
-        m_appletLayout->addItem(m_minimizeTask);
-        m_minimizeTask->show();
-    } else {
-        m_appletLayout->removeItem(m_minimizeTask);
-        m_minimizeTask->hide();
-    }
-
-    if (m_showMaximize) {
-        m_appletLayout->addItem(m_maximizeTask);
-        m_maximizeTask->show();
-    } else {
-        m_appletLayout->removeItem(m_maximizeTask);
-        m_maximizeTask->hide();
-    }
-
-    if (m_showClose) {
-        m_appletLayout->addItem(m_closeTask);
-        m_closeTask->show();
-    } else {
-        m_appletLayout->removeItem(m_closeTask);
-        m_closeTask->hide();
+    foreach(const QString& item, m_activeItem) {
+        if (m_itemMap.contains(item)) {
+            Plasma::IconWidget* widget = m_itemMap[item];
+            m_appletLayout->addItem(widget);
+            widget->show();
+        }
     }
 
     if (m_enableDrag) {
@@ -207,7 +198,7 @@ void YetAnotherWindowControl::updateSize()
     } else {
         m_currentTaskTitle->setOrientation(Qt::Horizontal);
         int width = 0;
-        if (m_showTitle)
+        if (m_activeItem.contains("Title"))
             width = qMin((qreal)(fm.width('M')*30), containment()->size().width() * m_titleWidth / 100 );
         else
             width = 0;
@@ -279,6 +270,8 @@ void YetAnotherWindowControl::syncActiveWindow()
         m_closeTask->hide();
         m_maximizeTask->hide();
         m_minimizeTask->hide();
+        m_alldesktopTask->hide();
+        m_topTask->hide();
 
         m_currentTaskTitle->setText(m_toolTipText);
         m_currentTaskTitle->update();
@@ -292,21 +285,18 @@ void YetAnotherWindowControl::syncActiveWindow()
     } else {
         m_activeWindow = m_pendingActiveWindow;
         m_lastActiveWindow = m_pendingActiveWindow;
-        KWindowInfo info = KWindowSystem::windowInfo(m_activeWindow, NET::WMName|NET::WMState);
+        KWindowInfo info = KWindowSystem::windowInfo(m_activeWindow, NET::WMName|NET::WMState|NET::WMDesktop);
         m_currentTask->setIcon(KWindowSystem::icon(m_activeWindow, KIconLoader::SizeSmallMedium, KIconLoader::SizeSmallMedium));
         m_toolTipText = info.name();
 
         m_currentTaskTitle->setText(m_toolTipText);
         m_currentTaskTitle->update();
 
-        if (m_showClose) {
-            m_closeTask->show();
-        }
-        if (m_showMaximize) {
-            m_maximizeTask->show();
-        }
-        if (m_showMinimize) {
-            m_minimizeTask->show();
+        foreach(const QString& item, m_activeItem) {
+            if (m_itemMap.contains(item)) {
+                Plasma::IconWidget* widget = m_itemMap[item];
+                widget->show();
+            }
         }
 
         toolTipData.setMainText(info.name());
@@ -317,6 +307,7 @@ void YetAnotherWindowControl::syncActiveWindow()
         } else {
             m_maximizeTask->setSvg("widgets/configuration-icons", "maximize");
         }
+        m_alldesktopTask->setSvg("widgets/configuration-icons", info.onAllDesktops() ? "remove" : "add");
     }
 
     Plasma::ToolTipManager::self()->registerWidget(this);
@@ -366,10 +357,19 @@ void YetAnotherWindowControl::toggleMinimizedWindow()
 #endif
 }
 
-
-void YetAnotherWindowControl::toggleMaximizedWindow()
+void YetAnotherWindowControl::toggleAllDesktop()
 {
-    //TODO: change the icon
+#ifdef Q_WS_X11
+    KWindowInfo info = KWindowSystem::windowInfo(m_activeWindow, NET::WMDesktop);
+    bool onAllDesktops = info.onAllDesktops();
+
+    KWindowSystem::setOnAllDesktops(m_activeWindow, !onAllDesktops);
+    m_alldesktopTask->setSvg("widgets/configuration-icons", !onAllDesktops ? "remove" : "add");
+#endif
+}
+
+void YetAnotherWindowControl::toggleTop()
+{
 #ifdef Q_WS_X11
     KWindowInfo info = KWindowSystem::windowInfo(m_activeWindow, NET::WMState | NET::XAWMState | NET::WMDesktop);
     bool on_current = info.isOnCurrentDesktop();
@@ -378,8 +378,28 @@ void YetAnotherWindowControl::toggleMaximizedWindow()
         KWindowSystem::setCurrentDesktop(info.desktop());
     }
 
-    if (info.isMinimized()) {
-        KWindowSystem::unminimizeWindow(m_activeWindow);
+    NETWinInfo ni(QX11Info::display(), m_activeWindow, QX11Info::appRootWindow(), NET::WMState);
+
+    if (!(ni.state() & NET::KeepAbove)) {
+        ni.setState(NET::KeepAbove, NET::KeepAbove);
+    } else {
+        ni.setState(0, NET::KeepAbove);
+    }
+
+    if (!on_current) {
+        KWindowSystem::forceActiveWindow(m_activeWindow);
+    }
+#endif
+}
+
+void YetAnotherWindowControl::toggleMaximizedWindow()
+{
+#ifdef Q_WS_X11
+    KWindowInfo info = KWindowSystem::windowInfo(m_activeWindow, NET::WMState | NET::XAWMState | NET::WMDesktop);
+    bool on_current = info.isOnCurrentDesktop();
+
+    if (!on_current) {
+        KWindowSystem::setCurrentDesktop(info.desktop());
     }
 
     NETWinInfo ni(QX11Info::display(), m_activeWindow, QX11Info::appRootWindow(), NET::WMState);
@@ -405,85 +425,9 @@ void YetAnotherWindowControl::listWindows()
         KWindowSystem::forceActiveWindow(v->winId());
     }
 
-    if (!m_alwaysUseDialog && Plasma::WindowEffects::isEffectAvailable(Plasma::WindowEffects::PresentWindows)) {
-        Plasma::WindowEffects::presentWindows(view()->winId() , KWindowSystem::currentDesktop());
-    } else if (!m_listDialog || !m_listDialog->isVisible()) {
-         if (!m_listDialog) {
-            m_listDialog = new Plasma::Dialog();
-            m_listWidget = new QGraphicsWidget(this);
-            m_listWidget->installEventFilter(this);
-            m_listWidget->setAcceptHoverEvents(true);
-            m_listDialog->setGraphicsWidget(m_listWidget);
-            Plasma::Corona *corona = 0;
-            if (containment() && containment()->corona()) {
-                corona = containment()->corona();
-                corona->addOffscreenWidget(m_listWidget);
-            }
-
-            m_listDialog->setWindowFlags(Qt::FramelessWindowHint|Qt::Dialog);
-            KWindowSystem::setType(m_listDialog->winId(), NET::PopupMenu);
-            KWindowSystem::setState(m_listDialog->winId(), NET::SkipTaskbar);
-            m_listDialog->installEventFilter(this);
-
-            connect(m_listDialog, SIGNAL(destroyed()), this, SLOT(closePopup()));
-
-            m_layout = new QGraphicsLinearLayout(m_listWidget);
-            m_layout->setOrientation(Qt::Vertical);
-            m_itemBackground = new Plasma::ItemBackground(m_listWidget);
-        } else {
-            QHash<Plasma::IconWidget *, WId>::const_iterator i = m_windowIcons.constBegin();
-            while (i != m_windowIcons.constEnd()) {
-                i.key()->hide();
-                m_oldIcons << i.key();
-                ++i;
-            }
-            m_windowIcons.clear();
-        }
-
-        m_itemBackground->hide();
-
-        Plasma::WindowEffects::slideWindow(m_listDialog, location());
-
-        foreach(WId window, KWindowSystem::stackingOrder()) {
-            KWindowInfo info = KWindowSystem::windowInfo(window, NET::WMName|NET::WMState|NET::WMWindowType);
-            NET::WindowType type = info.windowType((int) NET::AllTypesMask);
-            if (!(info.state() & NET::SkipTaskbar) &&
-                ((type == NET::Normal) || (type == NET::Unknown))) {
-                Plasma::IconWidget *icon;
-                if (m_oldIcons.isEmpty()) {
-                    icon = new Plasma::IconWidget(m_listWidget);
-                    icon->setTextBackgroundColor(QColor());
-                    icon->setTextBackgroundColor(QColor(Qt::transparent));
-                    icon->setDrawBackground(false);
-                    icon->setPreferredIconSize(QSizeF(KIconLoader::SizeSmallMedium, KIconLoader::SizeSmallMedium));
-
-                    qreal left, top, right, bottom;
-                    m_itemBackground->getContentsMargins(&left, &top, &right, &bottom);
-                    icon->setContentsMargins(left, top, right, bottom);
-                    icon->installEventFilter(this);
-                } else {
-                    icon = m_oldIcons.first();
-                    m_oldIcons.pop_front();
-                }
-
-                icon->setOrientation(Qt::Horizontal);
-                icon->setText(info.name());
-                icon->setIcon(KWindowSystem::icon(window, KIconLoader::SizeSmallMedium, KIconLoader::SizeSmallMedium));
-                icon->setMinimumSize(icon->effectiveSizeHint(Qt::PreferredSize));
-                connect(icon, SIGNAL(clicked()), this, SLOT(windowItemClicked()));
-                m_windowIcons[icon] = window;
-                m_layout->addItem(icon);
-                icon->show();
-            }
-        }
-
-        if (containment() && containment()->corona()) {
-            m_listDialog->move(containment()->corona()->popupPosition(this, m_listDialog->size()));
-        }
-
-        m_listDialog->show();
+    if (Plasma::WindowEffects::isEffectAvailable(Plasma::WindowEffects::PresentWindows)) {
+        Plasma::WindowEffects::presentWindows(view()->winId());
     } else {
-        closePopup();
         KWindowSystem::forceActiveWindow(m_lastActiveWindow);
     }
 }
@@ -496,43 +440,44 @@ void YetAnotherWindowControl::createConfigurationInterface(KConfigDialog *parent
 
     connect(parent, SIGNAL(applyClicked()), this, SLOT(configAccepted()));
     connect(parent, SIGNAL(okClicked()), this, SLOT(configAccepted()));
+    foreach(const QString& item,m_activeItem) {
+        if (m_allItem.contains(item)) {
+            QListWidgetItem *listItem = new QListWidgetItem( m_generalUi.itemSelector->selectedListWidget());
+            listItem->setText(m_itemName[item]);
+            listItem->setData(Qt::UserRole, item);
+            m_generalUi.itemSelector->selectedListWidget()->addItem(listItem);
+        }
+    }
+    foreach(const QString& item,m_allItem) {
+        if (!m_activeItem.contains(item)) {
+            QListWidgetItem *listItem = new QListWidgetItem( m_generalUi.itemSelector->availableListWidget());
+            listItem->setText(m_itemName[item]);
+            listItem->setData(Qt::UserRole, item);
+            m_generalUi.itemSelector->availableListWidget()->addItem(listItem);
+        }
+    }
 
-    m_generalUi.alwaysUseDialog->setChecked(m_alwaysUseDialog);
-    m_generalUi.showMaximize->setChecked(m_showMaximize);
-    m_generalUi.showMinimize->setChecked(m_showMinimize);
-    m_generalUi.showTitle->setChecked(m_showTitle);
-    m_generalUi.showIcon->setChecked(m_showIcon);
-    m_generalUi.showClose->setChecked(m_showClose);
     m_generalUi.borderlessMaximizedWindow->setChecked(m_borderlessMaximize);
     m_generalUi.windowDrag->setChecked(m_enableDrag);
     connect(m_generalUi.windowSizeSpinBox, SIGNAL(valueChanged(int)), parent, SLOT(settingsModified()));
-    connect(m_generalUi.alwaysUseDialog, SIGNAL(toggled(bool)), parent, SLOT(settingsModified()));
-    connect(m_generalUi.showMaximize, SIGNAL(toggled(bool)), parent, SLOT(settingsModified()));
-    connect(m_generalUi.showMinimize, SIGNAL(toggled(bool)), parent, SLOT(settingsModified()));
-    connect(m_generalUi.showTitle, SIGNAL(toggled(bool)), parent, SLOT(settingsModified()));
-    connect(m_generalUi.showIcon, SIGNAL(toggled(bool)), parent, SLOT(settingsModified()));
-    connect(m_generalUi.showClose, SIGNAL(toggled(bool)), parent, SLOT(settingsModified()));
+    connect(m_generalUi.itemSelector, SIGNAL(movedUp(QListWidgetItem*)), parent, SLOT(settingsModified()));
+    connect(m_generalUi.itemSelector, SIGNAL(movedDown(QListWidgetItem*)), parent, SLOT(settingsModified()));
+    connect(m_generalUi.itemSelector, SIGNAL(added(QListWidgetItem*)), parent, SLOT(settingsModified()));
+    connect(m_generalUi.itemSelector, SIGNAL(removed(QListWidgetItem*)), parent, SLOT(settingsModified()));
     connect(m_generalUi.borderlessMaximizedWindow, SIGNAL(toggled(bool)), parent, SLOT(settingsModified()));
     connect(m_generalUi.windowDrag, SIGNAL(toggled(bool)), parent, SLOT(settingsModified()));
 }
 
 void YetAnotherWindowControl::configAccepted()
 {
-    m_alwaysUseDialog = m_generalUi.alwaysUseDialog->checkState() == Qt::Checked;
-    m_showMaximize = m_generalUi.showMaximize->checkState() == Qt::Checked;
-    m_showMinimize = m_generalUi.showMinimize->checkState() == Qt::Checked;
-    m_showTitle = m_generalUi.showTitle->checkState() == Qt::Checked;
-    m_showIcon = m_generalUi.showIcon->checkState() == Qt::Checked;
-    m_showClose = m_generalUi.showClose->checkState() == Qt::Checked;
     m_enableDrag = m_generalUi.windowDrag->checkState() == Qt::Checked;
     m_titleWidth = m_generalUi.windowSizeSpinBox->value();
+    m_activeItem.clear();
+    for ( int i = 0; i < m_generalUi.itemSelector->selectedListWidget()->count(); ++i ) {
+        m_activeItem << m_generalUi.itemSelector->selectedListWidget()->item(i)->data(Qt::UserRole).toString();
+    }
     bool borderlessMaximize =  m_generalUi.borderlessMaximizedWindow->checkState() == Qt::Checked;
-    config().writeEntry("AlwaysUseDialog", m_alwaysUseDialog);
-    config().writeEntry("ShowMaximize", m_showMaximize);
-    config().writeEntry("ShowMinimize", m_showMinimize);
-    config().writeEntry("ShowWindowTitle", m_showTitle);
-    config().writeEntry("ShowIcon", m_showIcon);
-    config().writeEntry("ShowClose", m_showClose);
+    config().writeEntry("ActiveItem", m_activeItem);
     config().writeEntry("WindowDrag", m_enableDrag);
     config().writeEntry("TitleWidth", m_titleWidth);
     if (borderlessMaximize != m_borderlessMaximize) {
@@ -550,47 +495,23 @@ int YetAnotherWindowControl::windowsCount() const
 {
     int count = 0;
     foreach(WId window, KWindowSystem::stackingOrder()) {
-        KWindowInfo info = KWindowSystem::windowInfo(window, NET::WMWindowType | NET::WMPid | NET::WMState);
+        KWindowInfo info = KWindowSystem::windowInfo(window, NET::WMWindowType | NET::WMPid | NET::WMState, NET::WM2Activities);
+        const unsigned long prop[] = {0 , NET::WM2Activities};
+        NETWinInfo ni(QX11Info::display(), window, QX11Info::appRootWindow(), prop, 2);
+        QString activity = QString(ni.activities());
         if (!(info.state() & NET::SkipTaskbar) &&
             info.windowType(NET::NormalMask | NET::DialogMask |
                             NET::OverrideMask | NET::UtilityMask) != NET::Utility &&
             info.windowType(NET::NormalMask | NET::DialogMask |
-                            NET::OverrideMask | NET::UtilityMask | NET::DockMask) != NET::Dock) {
+                            NET::OverrideMask | NET::UtilityMask | NET::DockMask) != NET::Dock &&
+            (activity.isEmpty() || activity.contains(m_consumer.currentActivity()))
+           ) {
             ++count;
         }
     }
     return count;
 }
 
-void YetAnotherWindowControl::windowItemClicked()
-{
-    if (sender() && m_windowIcons.contains(static_cast<Plasma::IconWidget*>(sender()))) {
-        KWindowSystem::forceActiveWindow(m_windowIcons.value(static_cast<Plasma::IconWidget*>(sender())));
-    }
-}
-
-void YetAnotherWindowControl::closePopup()
-{
-    m_listDialog->deleteLater();
-    m_listWidget->deleteLater();
-    m_listDialog = 0;
-    m_listWidget = 0;
-}
-
-bool YetAnotherWindowControl::eventFilter(QObject *watched, QEvent *event)
-{
-    Plasma::IconWidget *icon = qobject_cast<Plasma::IconWidget *>(watched);
-
-    if (watched == m_listDialog && event->type() == QEvent::WindowDeactivate) {
-        closePopup();
-    } else if (icon && event->type() == QEvent::GraphicsSceneHoverEnter) {
-        m_itemBackground->show();
-        m_itemBackground->setTargetItem(icon);
-    } else if (watched == m_listWidget && event->type() == QEvent::GraphicsSceneHoverLeave) {
-        m_itemBackground->hide();
-    }
-
-    return false;
-}
+K_EXPORT_PLASMA_APPLET(yawc, YetAnotherWindowControl)
 
 #include "yawc.moc"

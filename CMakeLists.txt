@@ -3,25 +3,9 @@ cmake_minimum_required(VERSION 2.6)
 project(yawc)
 
 find_package(KDE4 REQUIRED)
+find_package(KActivities REQUIRED)
+find_package(Gettext REQUIRED)
 include(KDE4Defaults)
 
-include_directories(${KDE4_INCLUDE_DIR})
-
-add_definitions (${QT_DEFINITIONS} ${KDE4_DEFINITIONS})
-include_directories(
-   ${CMAKE_SOURCE_DIR}
-   ${CMAKE_BINARY_DIR}
-   ${KDE4_INCLUDES}
-   )
-
-set(yawc_SRCS yawc.cpp titlewidget.cpp)
-
-kde4_add_ui_files(yawc_SRCS yawc.ui)
-kde4_add_plugin(plasma_applet_yawc ${yawc_SRCS})
-target_link_libraries(plasma_applet_yawc ${KDE4_PLASMA_LIBS} ${KDE4_KDEUI_LIBS} ${QT_X11_X11_LIBRARY})
-
-install(TARGETS plasma_applet_yawc
-        DESTINATION ${PLUGIN_INSTALL_DIR})
-
-install(FILES plasma-applet-yawc.desktop
-        DESTINATION ${SERVICES_INSTALL_DIR})
+add_subdirectory(src)
+add_subdirectory(po)
