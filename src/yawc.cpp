@@ -263,9 +263,9 @@ void YetAnotherWindowControl::syncActiveWindow()
         m_currentTask->setIcon("preferences-system-windows");
         const int activeWindows = qMax(0, count-1);
         if (activeWindows) {
-            m_toolTipText = i18np("%1 running app", "%1 running apps", activeWindows);
+            m_toolTipText = i18np("%1 window", "%1 windows", activeWindows);
         } else {
-            m_toolTipText = i18n("No running apps");
+            m_toolTipText = i18n("No windows");
         }
         m_closeTask->hide();
         m_maximizeTask->hide();
@@ -457,6 +457,7 @@ void YetAnotherWindowControl::createConfigurationInterface(KConfigDialog *parent
         }
     }
 
+    m_generalUi.windowSizeSpinBox->setValue(m_titleWidth);
     m_generalUi.borderlessMaximizedWindow->setChecked(m_borderlessMaximize);
     m_generalUi.windowDrag->setChecked(m_enableDrag);
     connect(m_generalUi.windowSizeSpinBox, SIGNAL(valueChanged(int)), parent, SLOT(settingsModified()));

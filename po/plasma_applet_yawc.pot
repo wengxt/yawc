@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: wengxt@gmail.com\n"
-"POT-Creation-Date: 2012-05-09 01:36+0800\n"
+"POT-Creation-Date: 2012-05-09 10:47+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -46,21 +46,21 @@ msgstr ""
 msgid "Close window"
 msgstr ""
 
-#: ../src/yawc.cpp:259
+#: ../src/yawc.cpp:258
 msgid "Click here to have an overview of all the running applications"
 msgstr ""
 
 #: ../src/yawc.cpp:266
-msgid "%1 running app"
-msgid_plural "%1 running apps"
+msgid "%1 window"
+msgid_plural "%1 windows"
 msgstr[0] ""
 msgstr[1] ""
 
 #: ../src/yawc.cpp:268
-msgid "No running apps"
+msgid "No windows"
 msgstr ""
 
-#: ../src/yawc.cpp:440
+#: ../src/yawc.cpp:439
 msgctxt "General configuration page"
 msgid "General"
 msgstr ""

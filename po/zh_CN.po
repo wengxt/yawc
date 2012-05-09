@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fcitx\n"
 "Report-Msgid-Bugs-To: wengxt@gmail.com\n"
-"POT-Creation-Date: 2012-05-09 01:36+0800\n"
-"PO-Revision-Date: 2012-05-09 01:37+0800\n"
+"POT-Creation-Date: 2012-05-09 10:47+0800\n"
+"PO-Revision-Date: 2012-05-09 10:47+0800\n"
 "Last-Translator: Weng Xuetian <wengxt@gmail.com>\n"
 "Language-Team: Chinese Simplified <fcitx-dev@googlegroups.com>\n"
 "Language: zh_CN\n"
@@ -28,9 +28,9 @@ msgid " %"
 msgstr " %"
 
 #: ../src/yawc.cpp:266
-msgid "%1 running app"
-msgid_plural "%1 running apps"
-msgstr[0] "%1 个运行中的程序"
+msgid "%1 window"
+msgid_plural "%1 windows"
+msgstr[0] "%1 个窗口"
 
 #. i18n: file: ../src/yawc.ui:34
 #. i18n: ectx: property (text), widget (QLabel, label)
@@ -54,7 +54,7 @@ msgstr "总在最上"
 msgid "Available Item:"
 msgstr "可用项:"
 
-#: ../src/yawc.cpp:259
+#: ../src/yawc.cpp:258
 msgid "Click here to have an overview of all the running applications"
 msgstr "单击这里可用查看所有运行中程序的概览"
 
@@ -74,7 +74,7 @@ msgstr "不要在最大化时显示窗口标题栏:"
 msgid "Enable window drag:"
 msgstr "启用窗口拖放:"
 
-#: ../src/yawc.cpp:440
+#: ../src/yawc.cpp:439
 msgctxt "General configuration page"
 msgid "General"
 msgstr "常规"
@@ -92,8 +92,8 @@ msgid "Minimize window"
 msgstr "最小化窗口"
 
 #: ../src/yawc.cpp:268
-msgid "No running apps"
-msgstr "无运行中的程序"
+msgid "No windows"
+msgstr "无窗口"
 
 #: ../src/yawc.cpp:74
 msgid "Show on all desktop"
@@ -118,6 +118,10 @@ msgstr "wengxt@gmail.com"
 msgctxt "NAME OF TRANSLATORS"
 msgid "Your names"
 msgstr "Xuetian Weng"
+
+#~ msgid "%1 running app"
+#~ msgid_plural "%1 running apps"
+#~ msgstr[0] "%1 个运行中的程序"
 
 #~ msgid "&Configure Skin"
 #~ msgstr "配置皮肤(&C)"
@@ -201,6 +205,9 @@ msgstr "Xuetian Weng"
 
 #~ msgid "Multilingual"
 #~ msgstr "多语言"
+
+#~ msgid "No running apps"
+#~ msgstr "无运行中的程序"
 
 #~ msgid "Not all configuration can be reloaded immediately."
 #~ msgstr "并非所有设置都可以被立即重新加载。"
