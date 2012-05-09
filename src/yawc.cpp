@@ -236,8 +236,7 @@ void YetAnotherWindowControl::activeWindowChanged(WId id)
 
 void YetAnotherWindowControl::windowRemoved(WId id)
 {
-    Q_UNUSED(id)
-
+    Q_UNUSED(id);
     QTimer::singleShot(300, this, SLOT(syncActiveWindow()));
 }
 
@@ -258,10 +257,11 @@ void YetAnotherWindowControl::syncActiveWindow()
     toolTipData.setAutohide(true);
     toolTipData.setSubText(i18n("Click here to have an overview of all the running applications"));
 
-    if (applicationActive && m_pendingActiveWindow > 0) {
+    if (applicationActive) {
         m_activeWindow = 0;
+        int count = windowsCount();
         m_currentTask->setIcon("preferences-system-windows");
-        const int activeWindows = qMax(0, windowsCount()-1);
+        const int activeWindows = qMax(0, count-1);
         if (activeWindows) {
             m_toolTipText = i18np("%1 running app", "%1 running apps", activeWindows);
         } else {
@@ -495,14 +495,13 @@ int YetAnotherWindowControl::windowsCount() const
 {
     int count = 0;
     foreach(WId window, KWindowSystem::stackingOrder()) {
-        KWindowInfo info = KWindowSystem::windowInfo(window, NET::WMWindowType | NET::WMPid | NET::WMState, NET::WM2Activities);
-        const unsigned long prop[] = {0 , NET::WM2Activities};
+        const unsigned long prop[] = {NET::WMWindowType | NET::WMPid | NET::WMState, NET::WM2Activities};
         NETWinInfo ni(QX11Info::display(), window, QX11Info::appRootWindow(), prop, 2);
         QString activity = QString(ni.activities());
-        if (!(info.state() & NET::SkipTaskbar) &&
-            info.windowType(NET::NormalMask | NET::DialogMask |
+        if (!(ni.state() & NET::SkipTaskbar) &&
+            ni.windowType(NET::NormalMask | NET::DialogMask |
                             NET::OverrideMask | NET::UtilityMask) != NET::Utility &&
-            info.windowType(NET::NormalMask | NET::DialogMask |
+            ni.windowType(NET::NormalMask | NET::DialogMask |
                             NET::OverrideMask | NET::UtilityMask | NET::DockMask) != NET::Dock &&
             (activity.isEmpty() || activity.contains(m_consumer.currentActivity()))
            ) {
